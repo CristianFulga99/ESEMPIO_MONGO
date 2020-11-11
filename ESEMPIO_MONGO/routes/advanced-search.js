@@ -23,15 +23,15 @@ router.get('/', function (req, res, next) {
 
 module.exports = router;
 
-router.get('/movie_from_title/:title', function (req, res, next) {
+router.get('/actors/:name', function (req, res, next) {
     console.log(req.params); //Leggo i parametri passati all'url
-    title = req.params.title;
+    name = req.params.name;
     const uri = "mongodb+srv://FulgaCristian:FulgaCristian@fulgacluster0.8odzw.mongodb.net/FulgaCluster0?retryWrites=true&w=majority";
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     client.connect(err => {
         const collection = client.db("sample_mflix").collection("movies"); //Mi connetto alla collection movies
         // eseguo una find sulla collection
-        collection.find({ 'title': `${title}` }).toArray((err, result) => {
+        collection.find({ 'cast': {$in:[name]} }).toArray((err, result) => {
             if (err) console.log(err.message); //Se c'è qualche errore lo stampo
             else res.send(result);
             client.close(); //Quando ho terminato la find chiudo la sessione con il db
@@ -40,32 +40,16 @@ router.get('/movie_from_title/:title', function (req, res, next) {
     });
 });
 
-router.get('/year/:num', function (req, res, next) {
-    let num = parseInt(req.params.num);
+router.get('/length_year/:length/:year', function (req, res, next) {
     console.log(req.params); //Leggo i parametri passati all'url
+    let num = parseInt(req.params.length);
+    let num2 = parseInt(req.params.year);
     const uri = "mongodb+srv://FulgaCristian:FulgaCristian@fulgacluster0.8odzw.mongodb.net/FulgaCluster0?retryWrites=true&w=majority";
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     client.connect(err => {
         const collection = client.db("sample_mflix").collection("movies"); //Mi connetto alla collection movies
         // eseguo una find sulla collection
-        collection.find({year:num}).limit(10).toArray((err, result) => {
-            if (err) console.log(err.message); //Se c'è qualche errore lo stampo
-            else res.send(result);
-            client.close(); //Quando ho terminato la find chiudo la sessione con il db
-        }); //Eseguo la query e passo una funzione di callback
-
-    });
-});
-
-router.get('/rating/:num', function (req, res, next) {
-    let num = parseFloat(req.params.num);
-    console.log(req.params); //Leggo i parametri passati all'url
-    const uri = "mongodb+srv://FulgaCristian:FulgaCristian@fulgacluster0.8odzw.mongodb.net/FulgaCluster0?retryWrites=true&w=majority";
-    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-    client.connect(err => {
-        const collection = client.db("sample_mflix").collection("movies"); //Mi connetto alla collection movies
-        // eseguo una find sulla collection
-        collection.find({"imdb.rating":num}).limit(10).toArray((err, result) => {
+        collection.find({ year: num2, runtime: num }).toArray((err, result) => {
             if (err) console.log(err.message); //Se c'è qualche errore lo stampo
             else res.send(result);
             client.close(); //Quando ho terminato la find chiudo la sessione con il db
